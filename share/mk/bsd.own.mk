@@ -15,16 +15,17 @@ SKEY?=		yes
 # Set `YP' to `yes' to build with support for NIS/YP.
 YP?=		yes
 
-CLANG_ARCH=aarch64 amd64 arm i386 mips64 mips64el powerpc sparc64
+CLANG_ARCH=aarch64 amd64 arm i386 mips64 mips64el powerpc riscv64 sparc64
 GCC4_ARCH=alpha hppa mips64el powerpc sh sparc64
 GCC3_ARCH=m88k
-LLD_ARCH=aarch64 amd64 arm i386
+LLD_ARCH=aarch64 amd64 arm i386 riscv64
 
 .if ${MACHINE} == "sgi"
 GCC4_ARCH+=mips64
 .endif
 
 # m88k: ?
+# riscv64: ?
 PIE_ARCH=aarch64 alpha amd64 arm hppa i386 mips64 mips64el powerpc sh sparc64
 STATICPIE_ARCH=aarch64 alpha amd64 arm hppa i386 mips64 mips64el powerpc sh sparc64
 

@@ -32,12 +32,7 @@
 /*
  * ELF definitions for the RISC-V architecture.
  */
-#if 0	//freebsd specific
-#include <sys/elf32.h>	/* Definitions common to all 32 bit architectures. */
-#include <sys/elf64.h>	/* Definitions common to all 64 bit architectures. */
-
-#define	__ELF_WORD_SIZE	64	/* Used by <sys/elf_generic.h> */
-#include <sys/elf_generic.h>
+#include <sys/exec_elf.h>
 
 /*
  * Auxiliary vector entries for passing information to the interpreter.
@@ -73,7 +68,6 @@ __ElfType(Auxinfo);
 
 /* TODO: set correct value */
 #define	ET_DYN_LOAD_ADDR 0x100000
-#endif
 
 /* Flags passed in AT_HWCAP */
 #define	HWCAP_ISA_BIT(c)	(1 << ((c) - 'A'))

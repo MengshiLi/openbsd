@@ -60,8 +60,16 @@
 #endif
 
 #if defined(PROF) || defined(GPROF)
-// XXX Profiler Support
-#error PROF / GPROF not yet supported for riscv64
+#define _PROF_PROLOGUE	\
+	addi	sp, sp, -(2 * 8);	\
+	sd	fp, (0 * 8)(sp);	\
+	sd	ra, (1 * 8)(sp);	\
+	mv	fp, sp;			\
+	la	t0, __mcount;		\
+	jalr	t0;			\
+	ld	fp, (0 * 8)(sp);	\
+	ld	ra, (1 * 8)(sp);	\
+	addi	sp, sp, (2 * 8);
 #else
 #define _PROF_PROLOGUE
 #endif

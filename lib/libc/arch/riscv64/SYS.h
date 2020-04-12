@@ -99,10 +99,10 @@
 	__END(x)
 #define PSEUDO_HIDDEN(x,y)						\
 	SYSENTRY_HIDDEN(x);						\
-	RETGUARD_SETUP(x, x15);						\
+	RETGUARD_SETUP(x, t6);						\
 	SYSTRAP(y);							\
 	HANDLE_ERROR();							\
-	RETGUARD_CHECK(x, x15);						\
+	RETGUARD_CHECK(x, t6);						\
 	ret;								\
 	__END_HIDDEN(x)
 

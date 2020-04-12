@@ -42,12 +42,10 @@
 
 	.data
 	.align	3
-_C_LABEL(__minbrk):
-	.dword	_C_LABEL(_end)
-END(__minbrk):
-_C_LABEL(__curbrk):
-	.dword	_C_LABEL(_end)
-END(__curbrk)
+__minbrk:
+	.dword	_C_LABEL(_end);
+__curbrk:
+	.dword	_C_LABEL(_end);
 
 /*
  * Change the data segment size

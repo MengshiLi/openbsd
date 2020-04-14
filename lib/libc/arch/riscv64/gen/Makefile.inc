@@ -1,3 +1,4 @@
+SRCS+=	ldexp.c
 SRCS+=	infinity.c nan.c
 SRCS+=	flt_rounds.c
 SRCS+=	fpclassifyl.c

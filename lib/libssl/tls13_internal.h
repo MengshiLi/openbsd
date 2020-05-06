@@ -1,4 +1,4 @@
-/* $OpenBSD: tls13_internal.h,v 1.65 2020/04/22 17:05:07 jsing Exp $ */
+/* $OpenBSD: tls13_internal.h,v 1.67 2020/04/28 20:37:22 jsing Exp $ */
 /*
  * Copyright (c) 2018 Bob Beck <beck@openbsd.org>
  * Copyright (c) 2018 Theo Buehler <tb@openbsd.org>
@@ -250,6 +250,8 @@ const EVP_MD *tls13_cipher_hash(const SSL_CIPHER *cipher);
 /*
  * Legacy interfaces.
  */
+int tls13_use_legacy_client(struct tls13_ctx *ctx);
+int tls13_use_legacy_server(struct tls13_ctx *ctx);
 int tls13_legacy_accept(SSL *ssl);
 int tls13_legacy_connect(SSL *ssl);
 int tls13_legacy_return_code(SSL *ssl, ssize_t ret);
@@ -292,6 +294,11 @@ int tls13_legacy_shutdown(SSL *ssl);
 int tls13_handshake_msg_record(struct tls13_ctx *ctx);
 int tls13_handshake_perform(struct tls13_ctx *ctx);
 
+int tls13_client_init(struct tls13_ctx *ctx);
+int tls13_server_init(struct tls13_ctx *ctx);
+int tls13_client_connect(struct tls13_ctx *ctx);
+int tls13_server_accept(struct tls13_ctx *ctx);
+
 int tls13_client_hello_send(struct tls13_ctx *ctx, CBB *cbb);
 int tls13_client_hello_sent(struct tls13_ctx *ctx);
 int tls13_client_hello_recv(struct tls13_ctx *ctx, CBS *cbs);
@@ -326,6 +333,7 @@ int tls13_server_finished_sent(struct tls13_ctx *ctx);
 void tls13_error_clear(struct tls13_error *error);
 
 int tls13_cert_add(CBB *cbb, X509 *cert);
+int tls13_synthetic_handshake_message(struct tls13_ctx *ctx);
 
 int tls13_error_set(struct tls13_error *error, int code, int subcode,
     const char *file, int line, const char *fmt, ...);

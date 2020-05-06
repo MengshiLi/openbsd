@@ -1,4 +1,4 @@
-/*	$OpenBSD: imxehci.c,v 1.1 2020/04/23 22:14:49 patrick Exp $ */
+/*	$OpenBSD: imxehci.c,v 1.4 2020/04/27 20:15:41 patrick Exp $ */
 /*
  * Copyright (c) 2012-2013 Patrick Wildt <patrick@blueri.se>
  *
@@ -36,6 +36,7 @@
 #include <dev/ofw/ofw_gpio.h>
 #include <dev/ofw/ofw_misc.h>
 #include <dev/ofw/ofw_pinctrl.h>
+#include <dev/ofw/ofw_power.h>
 #include <dev/ofw/ofw_regulator.h>
 #include <dev/ofw/fdt.h>
 
@@ -63,10 +64,10 @@
 #define USBNC_USB_OTG_CTRL		0x00
 #define USBNC_USB_UH1_CTRL		0x04
 
-#define USBNC_USB_OTG_CTRL_OVER_CUR_POL	(1 << 8)
-#define USBNC_USB_OTG_CTRL_OVER_CUR_DIS	(1 << 7)
-#define USBNC_USB_UH1_CTRL_OVER_CUR_POL	(1 << 8)
-#define USBNC_USB_UH1_CTRL_OVER_CUR_DIS	(1 << 7)
+#define USBNC_USB_CTRL_PWR_POL		(1 << 9)
+#define USBNC_USB_CTRL_OVER_CUR_POL	(1 << 8)
+#define USBNC_USB_CTRL_OVER_CUR_DIS	(1 << 7)
+#define USBNC_USB_CTRL_NON_BURST	(1 << 1)
 
 /* anatop */
 #define ANALOG_USB1_CHRG_DETECT			0x1b0
@@ -109,7 +110,8 @@ imxehci_match(struct device *parent, void *match, void *aux)
 {
 	struct fdt_attach_args *faa = aux;
 
-	return OF_is_compatible(faa->fa_node, "fsl,imx27-usb");
+	return (OF_is_compatible(faa->fa_node, "fsl,imx27-usb") ||
+	    OF_is_compatible(faa->fa_node, "fsl,imx7d-usb"));
 }
 
 void
@@ -121,6 +123,7 @@ imxehci_attach(struct device *parent, struct device *self, void *aux)
 	char *devname = sc->sc.sc_bus.bdev.dv_xname;
 	uint32_t phy[1], misc[2];
 	uint32_t misc_reg[2];
+	uint32_t off, reg;
 	uint32_t vbus;
 	int misc_node;
 
@@ -170,22 +173,36 @@ imxehci_attach(struct device *parent, struct device *self, void *aux)
 	printf("\n");
 
 	pinctrl_byname(faa->fa_node, "default");
+	power_domain_enable(faa->fa_node);
+	clock_set_assigned(faa->fa_node);
 	clock_enable(faa->fa_node, NULL);
 	delay(1000);
 
 	/* over current and polarity setting */
 	switch (misc[1]) {
 	case 0:
-		bus_space_write_4(sc->sc.iot, sc->nc_ioh, USBNC_USB_OTG_CTRL,
-		    bus_space_read_4(sc->sc.iot, sc->nc_ioh, USBNC_USB_OTG_CTRL) |
-		    (USBNC_USB_OTG_CTRL_OVER_CUR_POL | USBNC_USB_OTG_CTRL_OVER_CUR_DIS));
+		off = USBNC_USB_OTG_CTRL;
 		break;
 	case 1:
-		bus_space_write_4(sc->sc.iot, sc->nc_ioh, USBNC_USB_UH1_CTRL,
-		    bus_space_read_4(sc->sc.iot, sc->nc_ioh, USBNC_USB_UH1_CTRL) |
-		    (USBNC_USB_UH1_CTRL_OVER_CUR_POL | USBNC_USB_UH1_CTRL_OVER_CUR_DIS));
+		off = USBNC_USB_UH1_CTRL;
 		break;
+	default:
+		printf("%s: invalid usbmisc property\n", devname);
+		return;
 	}
+
+	reg = bus_space_read_4(sc->sc.iot, sc->nc_ioh, off);
+	reg &= ~USBNC_USB_CTRL_OVER_CUR_DIS;
+	if (OF_getproplen(faa->fa_node, "disable-over-current") == 0)
+		reg |= USBNC_USB_CTRL_OVER_CUR_DIS;
+	if (OF_getproplen(faa->fa_node, "over-current-active-low") == 0)
+		reg |= USBNC_USB_CTRL_OVER_CUR_POL;
+	else if (OF_getproplen(faa->fa_node, "over-current-active-high") == 0)
+		reg &= ~USBNC_USB_CTRL_OVER_CUR_POL;
+	if (OF_getproplen(faa->fa_node, "power-active-high") == 0)
+		reg |= USBNC_USB_CTRL_PWR_POL;
+	reg |= USBNC_USB_CTRL_NON_BURST;
+	bus_space_write_4(sc->sc.iot, sc->nc_ioh, off, reg);
 
 	/* enable usb bus power */
 	vbus = OF_getpropint(faa->fa_node, "vbus-supply", 0);
@@ -391,5 +408,6 @@ nop_xceiv_init(struct imxehci_softc *sc, uint32_t *cells)
 	node = OF_getnodebyphandle(cells[0]);
 	KASSERT(node != 0);
 
+	clock_set_assigned(node);
 	clock_enable(node, NULL);
 }

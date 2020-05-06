@@ -1,4 +1,4 @@
-/*	$OpenBSD: parse.y,v 1.94 2020/04/23 20:17:48 tobhe Exp $	*/
+/*	$OpenBSD: parse.y,v 1.99 2020/04/30 21:11:13 tobhe Exp $	*/
 
 /*
  * Copyright (c) 2019 Tobias Heider <tobias.heider@stusta.de>
@@ -145,6 +145,12 @@ struct iked_transform ikev2_default_ike_transforms[] = {
 	{ IKEV2_XFORMTYPE_PRF,	IKEV2_XFORMPRF_HMAC_SHA1 },
 	{ IKEV2_XFORMTYPE_INTEGR, IKEV2_XFORMAUTH_HMAC_SHA2_256_128 },
 	{ IKEV2_XFORMTYPE_INTEGR, IKEV2_XFORMAUTH_HMAC_SHA1_96 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_CURVE25519 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_ECP_521 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_ECP_384 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_ECP_256 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_MODP_4096 },
+	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_MODP_3072 },
 	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_MODP_2048 },
 	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_MODP_1536 },
 	{ IKEV2_XFORMTYPE_DH,	IKEV2_XFORMDH_MODP_1024 },
@@ -223,10 +229,6 @@ const struct ipsec_xf groupxfs[] = {
 	{ "grp1",		IKEV2_XFORMDH_MODP_768 },
 	{ "modp1024",		IKEV2_XFORMDH_MODP_1024 },
 	{ "grp2",		IKEV2_XFORMDH_MODP_1024 },
-	{ "ec2n155",		IKEV2_XFORMDH_EC2N_155 },
-	{ "grp3",		IKEV2_XFORMDH_EC2N_155 },
-	{ "ec2n185",		IKEV2_XFORMDH_EC2N_185 },
-	{ "grp4",		IKEV2_XFORMDH_EC2N_185 },
 	{ "modp1536",		IKEV2_XFORMDH_MODP_1536 },
 	{ "grp5",		IKEV2_XFORMDH_MODP_1536 },
 	{ "modp2048",		IKEV2_XFORMDH_MODP_2048 },
@@ -2489,7 +2491,7 @@ print_policy(struct iked_policy *pol)
 		print_verbose(" active");
 	else
 		print_verbose(" passive");
-	
+
 	if (pol->pol_flags & IKED_POLICY_IPCOMP)
 		print_verbose(" ipcomp");
 
@@ -2510,7 +2512,7 @@ print_policy(struct iked_policy *pol)
 			print_verbose(" inet6");
 	}
 
-	if (pol->pol_rdomain)
+	if (pol->pol_rdomain >= 0)
 		print_verbose(" rdomain %d", pol->pol_rdomain);
 
 	RB_FOREACH(flow, iked_flows, &pol->pol_flows) {
@@ -2912,7 +2914,7 @@ create_ike(char *name, int af, uint8_t ipproto,
 				goto done;
 			}
 			if (noauth && ipsec_sa->xfs[i]->nauthxf) {
-				yyerror("authentication is implicit for given"
+				yyerror("authentication is implicit for given "
 				    "encryption transforms");
 				goto done;
 			}

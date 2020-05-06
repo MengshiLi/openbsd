@@ -1280,9 +1280,11 @@
 ./usr/share/man/man4/azalia.4
 ./usr/share/man/man4/bce.4
 ./usr/share/man/man4/bcmaux.4
+./usr/share/man/man4/bcmbsc.4
 ./usr/share/man/man4/bcmclock.4
 ./usr/share/man/man4/bcmdmac.4
 ./usr/share/man/man4/bcmdog.4
+./usr/share/man/man4/bcmgpio.4
 ./usr/share/man/man4/bcmirng.4
 ./usr/share/man/man4/bcmmbox.4
 ./usr/share/man/man4/bcmpcie.4
@@ -1335,6 +1337,7 @@
 ./usr/share/man/man4/diskmap.4
 ./usr/share/man/man4/divert.4
 ./usr/share/man/man4/drm.4
+./usr/share/man/man4/dsxrtc.4
 ./usr/share/man/man4/dt.4
 ./usr/share/man/man4/dwctwo.4
 ./usr/share/man/man4/dwdog.4
@@ -1487,6 +1490,7 @@
 ./usr/share/man/man4/imxgpc.4
 ./usr/share/man/man4/imxgpio.4
 ./usr/share/man/man4/imxiic.4
+./usr/share/man/man4/imxpciephy.4
 ./usr/share/man/man4/imxpwm.4
 ./usr/share/man/man4/imxrtc.4
 ./usr/share/man/man4/imxspi.4
@@ -1937,6 +1941,7 @@
 ./usr/share/man/man4/tap.4
 ./usr/share/man/man4/tcic.4
 ./usr/share/man/man4/tcp.4
+./usr/share/man/man4/tcpci.4
 ./usr/share/man/man4/termios.4
 ./usr/share/man/man4/thmc.4
 ./usr/share/man/man4/tht.4

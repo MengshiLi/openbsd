@@ -1,4 +1,4 @@
-# $OpenBSD: GENERIC,v 1.157 2020/04/23 22:16:10 patrick Exp $
+# $OpenBSD: GENERIC,v 1.164 2020/04/27 21:31:37 patrick Exp $
 #
 # GENERIC machine description file
 #
@@ -133,6 +133,7 @@ iic*		at imxiic?
 bdpmic*		at iic?
 imxesdhc*	at fdt?
 sdmmc*		at imxesdhc?
+imxpciephy*	at fdt?
 imxpwm*		at fdt?
 imxspi*		at fdt?
 ssdfb*		at iic?
@@ -142,9 +143,13 @@ imxtmu*		at fdt?
 
 # Raspberry Pi 3/4
 bcmaux*		at fdt? early 1
+bcmbsc*		at fdt?
+iic*		at bcmbsc?
 bcmclock*	at fdt? early 1
 bcmdmac*	at fdt? early 1
 bcmdog*		at fdt?
+bcmgpio*	at fdt? early 1
+gpio*		at bcmgpio?
 bcmintc*	at fdt? early 1
 bcmirng*	at fdt?
 bcmmbox*	at fdt? early 1
@@ -411,14 +416,18 @@ uk*		at scsibus?
 
 # I2C devices
 abcrtc*		at iic?			# Abracon x80x RTC
+dsxrtc*		at iic?			# DS3231 RTC
 fanpwr*		at iic?			# FAN53555 regulator
 fusbtc*		at iic?			# USB Type-C controller
 ipmi*		at iic?			# IPMI (SIIF)
 islrtc*		at iic?			# ISL1208 RTC
+maxrtc*		at iic?			# DS1307 RTC
 mcprtc*		at iic?			# MCP794XX RTC
+pcfrtc*		at iic?			# PCF8523 RTC
 pcxrtc*		at iic?			# PCF8563 RTC
 rkpmic*		at iic?			# RK808 PMIC
 sypwr*		at iic?			# SY8106A regulator
+tcpci*		at iic?			# USB Type-C controller
 
 # GPIO "pin bus" drivers
 gpioiic*	at gpio?		# I2C bus bit-banging
